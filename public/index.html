@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FUNRUN Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">FUN<span>RUN</span></div>
+    <nav>
+      <a href="#overview" class="active" data-nav>Overview</a>
+      <a href="#event" data-nav>Event</a>
+      <a href="#participants" data-nav>Participants</a>
+    </nav>
+    <button class="btn primary" id="addBtn">Add participant</button>
+  </aside>
+
+  <main>
+    <section id="overview" class="block">
+      <h1>Overview</h1>
+      <div class="metrics">
+        <div class="metric">
+          <span class="metric-label">Registered</span>
+          <span class="metric-value" id="mTotal">0</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Confirmed</span>
+          <span class="metric-value ok" id="mConfirmed">0</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Pending</span>
+          <span class="metric-value pending" id="mPending">0</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Cancelled</span>
+          <span class="metric-value cancelled" id="mCancelled">0</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Runners per category</h2>
+        <ul class="bars" id="bars"></ul>
+      </div>
+    </section>
+
+    <section id="event" class="block">
+      <h1>Event</h1>
+      <div class="event-grid">
+        <div class="panel">
+          <h2>Event date</h2>
+          <p class="event-date" id="eventDateText">Not set</p>
+          <p class="event-sub" id="eventCountdown"></p>
+          <form id="dateForm" class="date-form" novalidate>
+            <label>New date
+              <input type="date" name="eventDate" required>
+            </label>
+            <label class="check">
+              <input type="checkbox" name="notify">
+              Email everyone the new date
+            </label>
+            <button type="submit" class="btn primary" id="dateSave">Save date</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2>Email participants</h2>
+          <p class="hint">Send one message to everyone or to a group. Each person gets their own copy.</p>
+          <p class="notice" id="mailNotice" hidden>Email isn't set up yet. Add the SMTP settings to .env and restart the server.</p>
+          <button type="button" class="btn primary" id="composeBtn">Write email</button>
+        </div>
+
+        <div class="panel danger-zone">
+          <h2>Delete all participants</h2>
+          <p class="hint">Removes every registration permanently. Use it to clear the sample data or to reset after the event.</p>
+          <button type="button" class="btn danger-outline" id="wipeBtn">Delete all participants</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="participants" class="block">
+      <div class="head">
+        <h1>Participants</h1>
+        <div class="filters">
+          <input type="search" id="search" placeholder="Search name or email" aria-label="Search name or email">
+          <select id="categoryFilter" aria-label="Filter by category">
+            <option value="">All categories</option>
+            <option>3K</option>
+            <option>5K</option>
+            <option>10K</option>
+          </select>
+          <select id="statusFilter" aria-label="Filter by status">
+            <option value="">All statuses</option>
+            <option>Pending</option>
+            <option>Confirmed</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Contact</th>
+                <th class="num">Age</th>
+                <th>Category</th>
+                <th>Shirt</th>
+                <th>Status</th>
+                <th>Registered</th>
+                <th><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+          <p id="empty" class="empty" hidden>No participants match. Clear the filters or add a participant.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="modal">
+    <form id="form" novalidate>
+      <h2 id="modalTitle">Add participant</h2>
+      <label>Full name
+        <input name="fullName" maxlength="120" autocomplete="off" required>
+      </label>
+      <div class="two">
+        <label>Email
+          <input name="email" type="email" autocomplete="off" required>
+        </label>
+        <label>Contact number
+          <input name="contact" inputmode="tel" autocomplete="off" required>
+        </label>
+      </div>
+      <div class="two">
+        <label>Age
+          <input name="age" type="number" min="5" max="100" step="1" required>
+        </label>
+        <label>Gender
+          <select name="gender" required>
+            <option value="">Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </label>
+      </div>
+      <div class="two">
+        <label>Category
+          <select name="category" required>
+            <option value="">Select</option>
+            <option>3K</option>
+            <option>5K</option>
+            <option>10K</option>
+          </select>
+        </label>
+        <label>Shirt size
+          <select name="shirtSize" required>
+            <option value="">Select</option>
+            <option>XS</option>
+            <option>S</option>
+            <option>M</option>
+            <option>L</option>
+            <option>XL</option>
+            <option>2XL</option>
+          </select>
+        </label>
+      </div>
+      <label>Status
+        <select name="status">
+          <option>Pending</option>
+          <option>Confirmed</option>
+          <option>Cancelled</option>
+        </select>
+      </label>
+      <p id="formError" class="form-error" role="alert" hidden></p>
+      <div class="actions">
+        <button type="button" class="btn" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn primary" id="saveBtn">Save participant</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmModal">
+    <div class="confirm">
+      <h2>Delete participant?</h2>
+      <p id="confirmText"></p>
+      <div class="actions">
+        <button type="button" class="btn" id="confirmCancel">Keep</button>
+        <button type="button" class="btn danger" id="confirmDelete">Delete participant</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="mailModal">
+    <form id="mailForm" novalidate>
+      <h2>Email participants</h2>
+      <label>Send to
+        <select name="audience">
+          <option value="active">Everyone except cancelled</option>
+          <option value="all">Everyone, including cancelled</option>
+          <option value="confirmed">Confirmed only</option>
+          <option value="pending">Pending only</option>
+          <option value="3K">3K runners</option>
+          <option value="5K">5K runners</option>
+          <option value="10K">10K runners</option>
+        </select>
+      </label>
+      <label>Subject
+        <input name="subject" maxlength="150" autocomplete="off" required>
+      </label>
+      <label>Message
+        <textarea name="message" rows="8" maxlength="5000" required></textarea>
+      </label>
+      
+      <p id="mailError" class="form-error" role="alert" hidden></p>
+      <div class="actions">
+        <button type="button" class="btn" id="mailCancel">Cancel</button>
+        <button type="submit" class="btn primary" id="mailSend">Send email</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="wipeModal">
+    <div class="confirm">
+      <h2>Delete all participants?</h2>
+      <p>This permanently removes all <b id="wipeCount">0</b> registrations and can't be undone. Type DELETE ALL to confirm.</p>
+      <input id="wipeInput" autocomplete="off" placeholder="DELETE ALL" aria-label="Type DELETE ALL to confirm">
+      <div class="actions">
+        <button type="button" class="btn" id="wipeCancel">Keep participants</button>
+        <button type="button" class="btn danger" id="wipeConfirm" disabled>Delete all</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
